@@ -220,8 +220,8 @@ class SessionRedirectMixin(object):
             # value ensures `rewindable` will be True, allowing us to raise an
             # UnrewindableBodyError, instead of hanging the connection.
             rewindable = (
-                prepared_request._body_position is not None and
-                ('Content-Length' in headers or 'Transfer-Encoding' in headers)
+                    prepared_request._body_position is not None and
+                    ('Content-Length' in headers or 'Transfer-Encoding' in headers)
             )
 
             # Attempt to rewind consumed file-like object.
@@ -269,7 +269,6 @@ class SessionRedirectMixin(object):
         new_auth = get_netrc_auth(url) if self.trust_env else None
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
-
 
     def rebuild_proxies(self, prepared_request, proxies):
         """This method re-evaluates the proxy configuration by considering the
@@ -425,11 +424,8 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
-        #关闭警告
+        # 关闭警告
         disable_warnings()
-
-
-
 
     def __enter__(self):
         return self
@@ -478,9 +474,10 @@ class Session(SessionRedirectMixin):
         return p
 
     def request(self, method, url,
-            params=None, data=None, headers=None, cookies=None, files=None,
-            auth=None, timeout=None, allow_redirects=True, proxies=None,
-            hooks=None, stream=None, verify=None, cert=None, json=None):
+                params=None, data=None, headers=None, cookies=None, files=None,
+                auth=None, timeout=None, allow_redirects=True, proxies=None,
+                httpproxy=None,
+                hooks=None, stream=None, verify=None, cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -538,6 +535,11 @@ class Session(SessionRedirectMixin):
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
+        if httpproxy:
+            proxies = {
+                'http':"http://{}".format(httpproxy),
+                'https':"https://{}".format(httpproxy)
+            }
 
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
@@ -717,7 +719,7 @@ class Session(SessionRedirectMixin):
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
-            no_proxy = proxies.get('no_proxy') if proxies is not None else None #判断 是否为不为None
+            no_proxy = proxies.get('no_proxy') if proxies is not None else None  # 如果存在no_proxy的值则赋值否则 为None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)

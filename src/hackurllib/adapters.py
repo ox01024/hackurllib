@@ -267,6 +267,7 @@ class HTTPAdapter(BaseAdapter):
 
         # Fallback to None if there's no status_code, for whatever reason.
         response.status_code = getattr(resp, 'status', None)
+        # print(resp)
 
         # Make headers case-insensitive.
         response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
@@ -449,6 +450,7 @@ class HTTPAdapter(BaseAdapter):
                     retries=self.max_retries,
                     timeout=timeout
                 )
+
 
             # Send the request.
             else:
